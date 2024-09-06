@@ -2,9 +2,14 @@ package com.example.buoi1.controllers;
 
 import com.example.buoi1.dtos.CategoryDTO;
 import com.example.buoi1.models.Category;
+import com.example.buoi1.responses.CategoryListResponse;
+import com.example.buoi1.responses.CategoryResponse;
 import com.example.buoi1.services.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -13,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("api/category")
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
@@ -22,9 +27,18 @@ public class CategoryController {
         return categoryService.getAllCategories();
     }
 
-    @PostMapping("")
-    public Category insertCategory(@RequestBody CategoryDTO categoryDTO){
-        return categoryService.saveCategory(categoryDTO);
+    @GetMapping("/list")
+    public ResponseEntity<CategoryListResponse> getAllCategoriesPage(@RequestParam("page") int page, @RequestParam("limit") int limit){
+        System.out.print("OK");
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+        Page<CategoryResponse> categoryResponsePage = categoryService.getAllCategories1(pageRequest);
+
+        int totalPages = categoryResponsePage.getTotalPages();
+        List<CategoryResponse> categoryResponses = categoryResponsePage.getContent();
+        return ResponseEntity.ok(CategoryListResponse.builder()
+                .categories(categoryResponses)
+                .totalPage(totalPages)
+                .build());
     }
 
     @DeleteMapping("/{id}")
@@ -57,4 +71,5 @@ public class CategoryController {
         categoryService.saveCategory(categoryDTO);
         return categoryDTO.toString();
     }
+
 }

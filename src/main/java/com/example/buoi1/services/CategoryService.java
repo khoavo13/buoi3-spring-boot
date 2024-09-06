@@ -3,10 +3,15 @@ package com.example.buoi1.services;
 import com.example.buoi1.dtos.CategoryDTO;
 import com.example.buoi1.models.Category;
 import com.example.buoi1.repositories.CategoryRepository;
+import com.example.buoi1.responses.CategoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -44,5 +49,10 @@ public class CategoryService implements ICategoryService{
     @Override
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<CategoryResponse> getAllCategories1(PageRequest pageRequest) {
+        return categoryRepository.findAll(pageRequest).map(category -> CategoryResponse.fromCategory(category));
     }
 }
